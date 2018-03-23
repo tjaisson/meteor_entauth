@@ -13,9 +13,5 @@ Package.onUse(function(api) {
   api.use('tjaisson:entcore-oauth');
   api.imply('tjaisson:entcore-oauth');
 
-  // If users use accounts-ui but not google-config-ui, give them a tip.
-  api.use(['accounts-ui', 'pcn-config-ui'], ['client', 'server'], { weak: true });
-  api.addFiles("notice.js");
-
   api.addFiles("entcore.js");
 });
