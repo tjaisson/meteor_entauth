@@ -8,11 +8,6 @@ OAuth.registerService('entcore-mln', 2, null, function(query) {
 		return handleOauthRequest(query, 'mln')
 	});
 
-// http://developer.github.com/v3/#user-agent-required
-var userAgent = "Meteor";
-if (Meteor.release)
-  userAgent += "/" + Meteor.release;
-
 
 //@param query (For OAuth2 only) {Object} parameters passed in query string
 //@param server {string} 'pcn' or 'mln'
@@ -35,48 +30,71 @@ var handleOauthRequest = function(query, server) {
 	  };
 }
 
-
 var getAccessToken = function (query, server) {
-  //var config = ServiceConfiguration.configurations.findOne({service: 'github'});
-  //if (!config)
-  //  throw new ServiceConfiguration.ConfigError();
+
+var serverUrl;
+switch(server) {
+	case 'pcn':
+		serverUrl = "https://ent.parisclassenumerique.fr/auth/oauth2/token";
+		break;
+	case 'mln':
+		//loginUrl = "https://ent.iledefrance.fr/auth/oauth2/token";
+		serverUrl = "https://formation.ent.iledefrance.fr/auth/oauth2/token";
+		break;
+	default:
+		throw new ServiceConfiguration.ConfigError();
+		return;
+}
 
   var response;
   try {
     response = HTTP.post(
-      "https://github.com/login/oauth/access_token", {
+		serverUrl, {
+		auth: "test-tj-meteor:moncodesecret", 
         headers: {
           Accept: 'application/json',
-          "User-Agent": userAgent
+          "User-Agent": "MozillaXYZ/1.0"
         },
         params: {
+          grant_type: "authorization_code",
           code: query.code,
-          client_id: config.clientId,
-          client_secret: OAuth.openSecret(config.secret),
-          redirect_uri: OAuth._redirectUri('github', config),
-          state: query.state
+          redirect_uri: OAuth._redirectUri('github', config)
         }
       });
   } catch (err) {
-    throw _.extend(new Error("Failed to complete OAuth handshake with Github. " + err.message),
+    throw _.extend(new Error("Failed to complete OAuth handshake with EntCore. " + err.message),
                    {response: err.response});
   }
   if (response.data.error) { // if the http response was a json object with an error attribute
-    throw new Error("Failed to complete OAuth handshake with GitHub. " + response.data.error);
+    throw new Error("Failed to complete OAuth handshake with EntCore. " + response.data.error);
   } else {
     return response.data.access_token;
   }
 };
 
 var getIdentity = function (accessToken, server) {
+	var serverUrl;
+	switch(server) {
+		case 'pcn':
+			serverUrl = "https://ent.parisclassenumerique.fr/auth/oauth2/userinfo";
+			break;
+		case 'mln':
+			//loginUrl = "https://ent.iledefrance.fr/auth/oauth2/userinfo";
+			serverUrl = "https://formation.ent.iledefrance.fr/auth/oauth2/userinfo";
+			break;
+		default:
+			throw new ServiceConfiguration.ConfigError();
+			return;
+	}
+
   try {
     return HTTP.get(
-      "https://api.github.com/user", {
-        headers: {"User-Agent": userAgent}, // http://developer.github.com/v3/#user-agent-required
-        params: {access_token: accessToken}
+    	serverUrl, {
+        headers: {"User-Agent": "MozillaXYZ/1.0",
+        		Authorization: "Bearer " + accessToken},
       }).data;
   } catch (err) {
-    throw _.extend(new Error("Failed to fetch identity from Github. " + err.message),
+    throw _.extend(new Error("Failed to fetch identity from EntCore. " + err.message),
                    {response: err.response});
   }
 };

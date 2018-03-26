@@ -13,10 +13,14 @@ EntCore.requestCredential = function (options, credentialRequestCompleteCallback
     options = {};
   }
 
+  var loginUrl;
   switch(server) {
   case 'pcn':
+	  loginUrl = "https://ent.parisclassenumerique.fr/auth/oauth2/auth";
 	  break;
   case 'mln':
+	  //loginUrl = "https://ent.iledefrance.fr/auth/oauth2/auth";
+	  loginUrl = "https://formation.ent.iledefrance.fr/auth/oauth2/auth";
 	  break;
   default:
 	  credentialRequestCompleteCallback && credentialRequestCompleteCallback(
@@ -27,16 +31,14 @@ EntCore.requestCredential = function (options, credentialRequestCompleteCallback
   
   var credentialToken = Random.secret();
 
-  var scope = (options && options.requestPermissions) || ['user:email'];
-  var flatScope = _.map(scope, encodeURIComponent).join('+');
+  var loginStyle = "redirect";//OAuth._loginStyle('github', config, options);
 
-  var loginStyle = OAuth._loginStyle('github', config, options);
-
-  var loginUrl =
-    'https://github.com/login/oauth/authorize' +
-    '?client_id=' + config.clientId +
-    '&scope=' + flatScope +
-    '&redirect_uri=' + OAuth._redirectUri('github', config) +
+  loginUrl = loginUrl +
+    '?client_id=test-tj-meteor' +
+    '&scope=userinfo' +
+    '&response_type=code' +
+    '&approval_prompt=auto' +
+    '&redirect_uri=' + OAuth._redirectUri('entcore-' + server, {"loginStyle": loginStyle}) +
     '&state=' + OAuth._stateParam(loginStyle, credentialToken, options && options.redirectUrl);
 
   OAuth.launchLogin({
