@@ -10,7 +10,7 @@ if (Meteor.isClient) {
 		    }
 
 		    var credentialRequestCompleteCallback = Accounts.oauth.credentialRequestCompleteHandler(callback);
-		    EntCore.requestCredential(options, credentialRequestCompleteCallback);
+		    EntCore.requestCredential(options, credentialRequestCompleteCallback, 'pcn');
 		  };
 		  
 	  const loginWithEntcoreMln = function(options, callback) {
@@ -21,7 +21,7 @@ if (Meteor.isClient) {
 	    }
 
 	    var credentialRequestCompleteCallback = Accounts.oauth.credentialRequestCompleteHandler(callback);
-	    EntCore.requestCredential(options, credentialRequestCompleteCallback);
+	    EntCore.requestCredential(options, credentialRequestCompleteCallback, 'mln');
 	  };
 			  
   Accounts.registerClientLoginFunction('entcore-pcn', loginWithEntcorePcn);
@@ -34,7 +34,7 @@ if (Meteor.isClient) {
     return Accounts.applyLoginFunction('entcore-mln', arguments);
   };
 } else {
-  Accounts.addAutopublishFields({
+  /*Accounts.addAutopublishFields({
     forLoggedInUser: _.map(
       // publish access token since it can be used from the client (if
       // transmitted over ssl or on
@@ -48,5 +48,5 @@ if (Meteor.isClient) {
       // publishing all users' emails
       _.without(Google.whitelistedFields, 'email', 'verified_email'),
       function (subfield) { return 'services.google.' + subfield; })
-  });
+  });*/
 }
