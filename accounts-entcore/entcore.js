@@ -1,8 +1,8 @@
-Accounts.oauth.registerService('entcore-pcn');
-Accounts.oauth.registerService('entcore-mln');
+Accounts.oauth.registerService('entcorepcn');
+Accounts.oauth.registerService('entcoremln');
 
 if (Meteor.isClient) {
-	  const loginWithEntcorePcn = function(options, callback) {
+	  const loginWithEntcorepcn = function(options, callback) {
 		    // support a callback without options
 		    if (! callback && typeof options === "function") {
 		      callback = options;
@@ -13,7 +13,7 @@ if (Meteor.isClient) {
 		    EntCore.requestCredential(options, credentialRequestCompleteCallback, 'pcn');
 		  };
 		  
-	  const loginWithEntcoreMln = function(options, callback) {
+	  const loginWithEntcoremln = function(options, callback) {
 	    // support a callback without options
 	    if (! callback && typeof options === "function") {
 	      callback = options;
@@ -24,14 +24,14 @@ if (Meteor.isClient) {
 	    EntCore.requestCredential(options, credentialRequestCompleteCallback, 'mln');
 	  };
 			  
-  Accounts.registerClientLoginFunction('entcore-pcn', loginWithEntcorePcn);
-  Meteor.loginWithEntcorePcn = function () {
-    return Accounts.applyLoginFunction('entcore-pcn', arguments);
+  Accounts.registerClientLoginFunction('entcorepcn', loginWithEntcorepcn);
+  Meteor.loginWithEntcorepcn = function () {
+    return Accounts.applyLoginFunction('entcorepcn', arguments);
   };
   
-  Accounts.registerClientLoginFunction('entcore-mln', loginWithEntcoreMln);
-  Meteor.loginWithEntcoreMln = function () {
-    return Accounts.applyLoginFunction('entcore-mln', arguments);
+  Accounts.registerClientLoginFunction('entcoremln', loginWithEntcoremln);
+  Meteor.loginWithEntcoremln = function () {
+    return Accounts.applyLoginFunction('entcoremln', arguments);
   };
 } else {
   /*Accounts.addAutopublishFields({

@@ -13,5 +13,10 @@ Package.onUse(function(api) {
   api.use('tjaisson:entcore-oauth');
   api.imply('tjaisson:entcore-oauth');
 
+  api.use(
+		    ['accounts-ui', 'tjaisson:entcore-config-ui'],
+		    ['client', 'server'],
+		    { weak: true }
+		  );
   api.addFiles("entcore.js");
 });

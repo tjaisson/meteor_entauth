@@ -1,12 +1,29 @@
 EntCore = {};
 
-OAuth.registerService('entcore-pcn', 2, null, function(query) {
+OAuth.registerService('entcorepcn', 2, null, function(query) {
 	return handleOauthRequest(query, 'pcn')
 	});
 
-OAuth.registerService('entcore-mln', 2, null, function(query) {
+OAuth.registerService('entcoremln', 2, null, function(query) {
 		return handleOauthRequest(query, 'mln')
 	});
+
+if (!(ServiceConfiguration.configurations.findOne({service: 'entcorepcn'}))) {
+	var options = {
+			"service": "entcorepcn",
+			"loginStyle" : "popup"
+	};
+  ServiceConfiguration.configurations.insert(options);
+}
+
+if (!(ServiceConfiguration.configurations.findOne({service: 'entcoremln'}))) {
+	var options = {
+			"service": "entcoremln",
+			"loginStyle" : "popup"
+	};
+  ServiceConfiguration.configurations.insert(options);
+}
+
 
 
 //@param query (For OAuth2 only) {Object} parameters passed in query string
@@ -17,12 +34,13 @@ OAuth.registerService('entcore-mln', 2, null, function(query) {
 //  - `null` if the user declined to give permissions
 //
 var handleOauthRequest = function(query, server) {
+	//console.log("handleOauthRequest " + server);
 	  var accessToken = getAccessToken(query, server);
 	  var identity = getIdentity(accessToken, server);
 
 	  return {
 	    serviceData: {
-	      id: identity.id,
+	      id: identity.externalId,
 	      accessToken: OAuth.sealSecret(accessToken),
 	      username: identity.login,
 	    },
@@ -31,6 +49,9 @@ var handleOauthRequest = function(query, server) {
 }
 
 var getAccessToken = function (query, server) {
+  var config = ServiceConfiguration.configurations.findOne({service: 'entcore' + server});
+  if (!config)
+    throw new ServiceConfiguration.ConfigError();
 
 var serverUrl;
 switch(server) {
@@ -58,7 +79,7 @@ switch(server) {
         params: {
           grant_type: "authorization_code",
           code: query.code,
-          redirect_uri: OAuth._redirectUri('github', config)
+          redirect_uri: OAuth._redirectUri('entcore' + server, config)
         }
       });
   } catch (err) {
@@ -68,12 +89,15 @@ switch(server) {
   if (response.data.error) { // if the http response was a json object with an error attribute
     throw new Error("Failed to complete OAuth handshake with EntCore. " + response.data.error);
   } else {
+		//console.log("Got access token from " + server);
+		//console.log("Token " + response.data.access_token);
     return response.data.access_token;
   }
 };
 
 var getIdentity = function (accessToken, server) {
 	var serverUrl;
+	var response;
 	switch(server) {
 		case 'pcn':
 			serverUrl = "https://ent.parisclassenumerique.fr/auth/oauth2/userinfo";
@@ -88,11 +112,15 @@ var getIdentity = function (accessToken, server) {
 	}
 
   try {
-    return HTTP.get(
+	  response = 
+     HTTP.get(
     	serverUrl, {
         headers: {"User-Agent": "MozillaXYZ/1.0",
         		Authorization: "Bearer " + accessToken},
       }).data;
+		//console.log("Got identity from " + server);
+		//console.log("Identity " + JSON.stringify(response));
+	  return response;
   } catch (err) {
     throw _.extend(new Error("Failed to fetch identity from EntCore. " + err.message),
                    {response: err.response});
