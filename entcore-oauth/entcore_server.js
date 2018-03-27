@@ -37,15 +37,22 @@ var handleOauthRequest = function(query, server) {
 	//console.log("handleOauthRequest " + server);
 	  var accessToken = getAccessToken(query, server);
 	  var identity = getIdentity(accessToken, server);
-
-	  return {
+		console.log("Identity " + JSON.stringify(identity));
+	  var response = 
+	  {
 	    serviceData: {
 	      id: identity.externalId,
 	      accessToken: OAuth.sealSecret(accessToken),
 	      username: identity.login,
 	    },
-	    options: {profile: {name: identity.name}}
+	    options: {
+		    profile: {
+		    	  fullname: identity.firstName + ' ' + identity.lastName,
+		    }
+	    }
 	  };
+		console.log("Response " + JSON.stringify(response));
+	  return response;
 }
 
 var getAccessToken = function (query, server) {
