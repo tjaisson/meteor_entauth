@@ -1,6 +1,6 @@
 Package.describe({
-  name: 'tjaisson:accounts-entcore',
-  summary: "Login service for entcore accounts",
+  name: 'tjaisson:accounts-entcore-pcn',
+  summary: "Login service for entcore-pcn accounts",
   version: "1.0.0"
 });
 
@@ -14,9 +14,11 @@ Package.onUse(function(api) {
   api.imply('tjaisson:entcore-oauth');
 
   api.use(
-		    ['accounts-ui', 'tjaisson:entcore-config-ui'],
+		    ['accounts-ui', 'tjaisson:entcore-pcn-config-ui'],
 		    ['client', 'server'],
 		    { weak: true }
 		  );
-  api.addFiles("entcore.js");
+  api.addFiles('pcn.js');
+  api.addFiles('pcn_server.js', 'server');
+  api.addFiles('pcn_client.js', 'client');
 });
