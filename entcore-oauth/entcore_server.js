@@ -1,30 +1,28 @@
-EntCore = {};
+EntCore.registerService = function(server, url) {
+	EntCore.servers[server] = url;
+	var servicename = 'entcore' + server;
+	OAuth.registerService(servicename, 2, null, function(query) {
+		return handleOauthRequest(server, query);
+		});
+	if (!(ServiceConfiguration.configurations.findOne({service: servicename}))) {
+		var options = {
+				"service": servicename,
+				"loginStyle" : "popup"
+		};
+	  ServiceConfiguration.configurations.insert(options);
+	}
+};
 
-OAuth.registerService('entcorepcn', 2, null, function(query) {
-	return handleOauthRequest(query, 'pcn')
-	});
-
-OAuth.registerService('entcoremln', 2, null, function(query) {
-		return handleOauthRequest(query, 'mln')
-	});
-
-if (!(ServiceConfiguration.configurations.findOne({service: 'entcorepcn'}))) {
-	var options = {
-			"service": "entcorepcn",
-			"loginStyle" : "popup"
-	};
-  ServiceConfiguration.configurations.insert(options);
+EntCore.configService = function(server, clientId, secret) {
+	var servicename = 'entcore' + server;
+	var config = ServiceConfiguration.configurations.findOne({service: servicename});
+	if (config) {
+		
+	} else {
+		
+	}
+	
 }
-
-if (!(ServiceConfiguration.configurations.findOne({service: 'entcoremln'}))) {
-	var options = {
-			"service": "entcoremln",
-			"loginStyle" : "popup"
-	};
-  ServiceConfiguration.configurations.insert(options);
-}
-
-
 
 //@param query (For OAuth2 only) {Object} parameters passed in query string
 //@param server {string} 'pcn' or 'mln'
@@ -33,10 +31,10 @@ if (!(ServiceConfiguration.configurations.findOne({service: 'entcoremln'}))) {
 //    up in the user's services[name] field
 //  - `null` if the user declined to give permissions
 //
-var handleOauthRequest = function(query, server) {
+var handleOauthRequest = function(server, query) {
 	//console.log("handleOauthRequest " + server);
-	  var accessToken = getAccessToken(query, server);
-	  var identity = getIdentity(accessToken, server);
+	  var accessToken = getAccessToken(server, query);
+	  var identity = getIdentity(server, accessToken);
 		console.log("Identity " + JSON.stringify(identity));
 	  var response = 
 	  {
@@ -55,24 +53,12 @@ var handleOauthRequest = function(query, server) {
 	  return response;
 }
 
-var getAccessToken = function (query, server) {
+var getAccessToken = function (server, query) {
   var config = ServiceConfiguration.configurations.findOne({service: 'entcore' + server});
   if (!config)
     throw new ServiceConfiguration.ConfigError();
 
-var serverUrl;
-switch(server) {
-	case 'pcn':
-		serverUrl = "https://ent.parisclassenumerique.fr/auth/oauth2/token";
-		break;
-	case 'mln':
-		//loginUrl = "https://ent.iledefrance.fr/auth/oauth2/token";
-		serverUrl = "https://formation.ent.iledefrance.fr/auth/oauth2/token";
-		break;
-	default:
-		throw new ServiceConfiguration.ConfigError();
-		return;
-}
+  var serverUrl = EntCore.servers[server] + '/auth/oauth2/token';
 
   var response;
   try {
@@ -102,21 +88,9 @@ switch(server) {
   }
 };
 
-var getIdentity = function (accessToken, server) {
-	var serverUrl;
-	var response;
-	switch(server) {
-		case 'pcn':
-			serverUrl = "https://ent.parisclassenumerique.fr/auth/oauth2/userinfo";
-			break;
-		case 'mln':
-			//loginUrl = "https://ent.iledefrance.fr/auth/oauth2/userinfo";
-			serverUrl = "https://formation.ent.iledefrance.fr/auth/oauth2/userinfo";
-			break;
-		default:
-			throw new ServiceConfiguration.ConfigError();
-			return;
-	}
+var getIdentity = function (server, accessToken) {
+  var serverUrl = EntCore.servers[server] + '/auth/oauth2/userinfo';
+  var response;
 
   try {
 	  response = 

@@ -1,4 +1,6 @@
-EntCore = {};
+EntCore.registerService = function(server, url) {
+	EntCore.servers[server] = url;
+};
 
 // Request Entcore credentials for the user
 // @param options {optional}
@@ -6,27 +8,14 @@ EntCore = {};
 //   completion. Takes one argument, credentialToken on success, or Error on
 //   error.
 // @param server "mln" or "pcn"
-EntCore.requestCredential = function (options, credentialRequestCompleteCallback, server) {
+EntCore.requestCredential = function (server, options, credentialRequestCompleteCallback) {
   // support both (options, callback) and (callback).
   if (!credentialRequestCompleteCallback && typeof options === 'function') {
     credentialRequestCompleteCallback = options;
     options = {};
   }
 
-  var loginUrl;
-  switch(server) {
-  case 'pcn':
-	  loginUrl = "https://ent.parisclassenumerique.fr/auth/oauth2/auth";
-	  break;
-  case 'mln':
-	  //loginUrl = "https://ent.iledefrance.fr/auth/oauth2/auth";
-	  loginUrl = "https://formation.ent.iledefrance.fr/auth/oauth2/auth";
-	  break;
-  default:
-	  credentialRequestCompleteCallback && credentialRequestCompleteCallback(
-		new ServiceConfiguration.ConfigError());
-  	  return;
-  }
+  var loginUrl = EntCore.servers[server] + '/auth/oauth2/auth';
   
   var config = ServiceConfiguration.configurations.findOne({service: 'entcore' + server});
   if (!config) {

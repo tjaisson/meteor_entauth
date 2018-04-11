@@ -1,0 +1,3 @@
+EntCore = {
+		servers: [],
+};

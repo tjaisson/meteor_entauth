@@ -5,13 +5,8 @@ Package.describe({
 });
 
 Package.onUse(function(api) {
-  api.use(['underscore', 'random']);
-  api.use('accounts-base', ['client', 'server']);
-  // Export Accounts (etc) to packages using this one.
-  api.imply('accounts-base', ['client', 'server']);
-  api.use('accounts-oauth', ['client', 'server']);
-  api.use('tjaisson:entcore-oauth');
-  api.imply('tjaisson:entcore-oauth');
+  api.use('tjaisson:accounts-entcore');
+  //api.imply('tjaisson:entcore-oauth');
 
   api.use(
 		    ['accounts-ui', 'tjaisson:entcore-mln-config-ui'],
