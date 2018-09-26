@@ -1,28 +1,45 @@
-EntCore.registerService = function(server, url) {
-	EntCore.servers[server] = url;
-	var servicename = 'entcore' + server;
-	OAuth.registerService(servicename, 2, null, function(query) {
-		return handleOauthRequest(server, query);
+EntCore.registerService = function(s) {
+	let service = 'entcore' + s.server;
+	OAuth.registerService(service, 2, null, function(query) {
+		return handleOauthRequest(service, query);
 		});
-	if (!(ServiceConfiguration.configurations.findOne({service: servicename}))) {
-		var options = {
-				"service": servicename,
-				"loginStyle" : "popup"
-		};
-	  ServiceConfiguration.configurations.insert(options);
-	}
 };
 
-EntCore.configService = function(server, clientId, secret) {
-	var servicename = 'entcore' + server;
-	var config = ServiceConfiguration.configurations.findOne({service: servicename});
-	if (config) {
-		
-	} else {
-		
-	}
-	
+EntCore.configureService = function(s) {
+	ServiceConfiguration.configurations.upsert({
+		service: 'entcore' + s.server
+		}, {
+			$set: {
+				loginStyle : 'popup',
+				clientId: s.appId,
+				secret: s.secret,
+				entcore: true,
+				name: s.name,
+				url: s.url
+			}
+		});
 }
+
+var services = new Set();
+if (Meteor.settings.entcoreOauth) {
+	var len = Meteor.settings.entcoreOauth.length;
+	for (var i = 0; i < len; i++) {
+		var s = Meteor.settings.entcoreOauth[i];; 
+		services.add('entcore' + s.server);
+		EntCore.registerService(s);
+		EntCore.configureService(s);
+	}
+}
+var notFound = new Set();
+ServiceConfiguration.configurations.find({entcore: true}, {fields : {service: 1}}).forEach(r => {
+	if (! services.has(r.service)) {
+		notFound.add(r._id);
+	}
+});
+for (let s of notFound.values()) {
+	ServiceConfiguration.configurations.remove( {_id: s} );
+}
+
 
 //@param query (For OAuth2 only) {Object} parameters passed in query string
 //@param server {string} 'pcn' or 'mln'
@@ -31,10 +48,13 @@ EntCore.configService = function(server, clientId, secret) {
 //    up in the user's services[name] field
 //  - `null` if the user declined to give permissions
 //
-var handleOauthRequest = function(server, query) {
-	//console.log("handleOauthRequest " + server);
-	  var accessToken = getAccessToken(server, query);
-	  var identity = getIdentity(server, accessToken);
+var handleOauthRequest = function(service, query) {
+	  var config = ServiceConfiguration.configurations.findOne({service: service});
+	  if (!config)
+	    throw new ServiceConfiguration.ConfigError();
+	
+	  var accessToken = getAccessToken(config, query);
+	  var identity = getIdentity(config, accessToken);
 		console.log("Identity " + JSON.stringify(identity));
 	  var response = 
 	  {
@@ -53,18 +73,15 @@ var handleOauthRequest = function(server, query) {
 	  return response;
 }
 
-var getAccessToken = function (server, query) {
-  var config = ServiceConfiguration.configurations.findOne({service: 'entcore' + server});
-  if (!config)
-    throw new ServiceConfiguration.ConfigError();
+var getAccessToken = function (config, query) {
 
-  var serverUrl = EntCore.servers[server] + '/auth/oauth2/token';
+  var serverUrl = config.url + '/auth/oauth2/token';
 
   var response;
   try {
     response = HTTP.post(
 		serverUrl, {
-		auth: "test-tj-meteor:moncodesecret", 
+		auth: config.clientId + ':' + config.secret, 
         headers: {
           Accept: 'application/json',
           "User-Agent": "MozillaXYZ/1.0"
@@ -72,7 +89,7 @@ var getAccessToken = function (server, query) {
         params: {
           grant_type: "authorization_code",
           code: query.code,
-          redirect_uri: OAuth._redirectUri('entcore' + server, config)
+          redirect_uri: OAuth._redirectUri(config.service, config)
         }
       });
   } catch (err) {
@@ -82,14 +99,12 @@ var getAccessToken = function (server, query) {
   if (response.data.error) { // if the http response was a json object with an error attribute
     throw new Error("Failed to complete OAuth handshake with EntCore. " + response.data.error);
   } else {
-		//console.log("Got access token from " + server);
-		//console.log("Token " + response.data.access_token);
     return response.data.access_token;
   }
 };
 
-var getIdentity = function (server, accessToken) {
-  var serverUrl = EntCore.servers[server] + '/auth/oauth2/userinfo';
+var getIdentity = function (config, accessToken) {
+  var serverUrl = config.url + '/auth/oauth2/userinfo';
   var response;
 
   try {
@@ -99,8 +114,6 @@ var getIdentity = function (server, accessToken) {
         headers: {"User-Agent": "MozillaXYZ/1.0",
         		Authorization: "Bearer " + accessToken},
       }).data;
-		//console.log("Got identity from " + server);
-		//console.log("Identity " + JSON.stringify(response));
 	  return response;
   } catch (err) {
     throw _.extend(new Error("Failed to fetch identity from EntCore. " + err.message),

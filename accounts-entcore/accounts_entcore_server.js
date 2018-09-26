@@ -1,8 +1,6 @@
-AccountsEntCore.registerService = function (server, url) {
-	Accounts.oauth.registerService('entcore' + server);
-	EntCore.registerService(server, url);
-};
-
+ServiceConfiguration.configurations.find({entcore: true}, {fields : {service: 1}}).forEach(r => {
+	Accounts.oauth.registerService(r.service);
+});
 
 /*Accounts.addAutopublishFields({
     forLoggedInUser: _.map(

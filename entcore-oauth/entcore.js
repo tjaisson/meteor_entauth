@@ -1,3 +1,2 @@
 EntCore = {
-		servers: [],
 };

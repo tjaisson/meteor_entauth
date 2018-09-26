@@ -12,6 +12,8 @@ Package.onUse(function (api) {
 	  api.use('underscore', 'server');
 	  api.use('random', 'client');
 	  api.use('service-configuration', ['client', 'server']);
+	  api.use('tracker', 'client');
+	  api.imply('service-configuration');
 
 	  api.addFiles('entcore.js');
 	  api.addFiles('entcore_client.js', 'client');
