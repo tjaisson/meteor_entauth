@@ -1,19 +1,33 @@
 EntCore.configs = {};
 
 var dep = new Tracker.Dependency;
+var ready = false;
 
-EntCore.getDep = () => dep;
 
-Tracker.autorun(() => {
-	EntCore.configs = {};
-	console.log('entcore-oauth - list services');
-	ServiceConfiguration.configurations.find({entcore: true}, {fields : {service: 1, url: 1, name: 1, loginStyle: 1}}).forEach(r => {
-		EntCore.configs[r.service] = r;
-		console.log(' - ' + r.service);
-	});
-	console.log('entcore-oauth - fin list services');
-	dep.changed();
+//EntCore.getDep = () => dep;
+
+EntCore.ready = () => {
+	dep.depend();
+	return ready;
+};
+
+Tracker.autorun((c) => {
+	if(!ready && Accounts.loginServicesConfigured()) {
+		c.stop();
+		console.log('entcore-oauth - list services');
+		ServiceConfiguration.configurations.find({entcore: true}, {fields : {service: 1, url: 1, name: 1, loginStyle: 1}}).forEach(r => {
+			EntCore.configs[r.service] = r;
+			console.log(' - ' + r.service);
+		});
+		console.log('entcore-oauth - fin list services');
+		ready = true;
+		dep.changed();
+	} else {
+		console.log('loginServices not ready');
+	}
 });
+
+
 
 
 // Request Entcore credentials for the user
