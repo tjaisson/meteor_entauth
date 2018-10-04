@@ -12,7 +12,7 @@ Package.onUse(function(api) {
   api.imply('accounts-base', ['client', 'server']);
   api.use('accounts-oauth', ['client', 'server']);
   api.use('tjaisson:entcore-oauth');
-  api.imply('tjaisson:entcore-oauth');
+  //api.imply('tjaisson:entcore-oauth');
 
   api.addFiles('accounts_entcore.js');
   api.addFiles('accounts_entcore_server.js', 'server');
