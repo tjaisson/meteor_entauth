@@ -1,4 +1,5 @@
 EntCore.configs = {};
+EntCore.configsArray = [];
 
 var dep = new Tracker.Dependency;
 var ready = false;
@@ -15,8 +16,9 @@ Tracker.autorun((c) => {
 	if(!ready && Accounts.loginServicesConfigured()) {
 		c.stop();
 		console.log('entcore-oauth - list services');
-		ServiceConfiguration.configurations.find({entcore: true}, {fields : {service: 1, url: 1, name: 1, loginStyle: 1}}).forEach(r => {
+		ServiceConfiguration.configurations.find({entcore: true}, {fields : {service: 1, url: 1, name: 1, loginStyle: 1, clientId: 1}}).forEach(r => {
 			EntCore.configs[r.service] = r;
+			EntCore.configsArray.push(r);
 			console.log(' - ' + r.service);
 		});
 		console.log('entcore-oauth - fin list services');
@@ -50,7 +52,7 @@ EntCore.requestCredential = function (service, options, credentialRequestComplet
   var loginStyle = OAuth._loginStyle(service, config, options);
 
   loginUrl = loginUrl +
-    '?client_id=test-tj-meteor' +
+    '?client_id=' + config.clientId +
     '&scope=userinfo' +
     '&response_type=code' +
     '&approval_prompt=auto' +
