@@ -12,9 +12,13 @@ Package.onUse(function(api) {
 	  'tjaisson:entcore-oauth',
 	  'tjaisson:accounts-entcore'
   ]);
-  api.use('tracker', 'client');
+  api.use([
+    'templating',
+    'tracker'
+    ], 'client');
 
   api.addFiles('main.js');
+  api.addFiles('wait.html', 'client');
   api.addFiles('client.js', 'client');
   api.export('EntcoreDirect', 'client');
 });
