@@ -1,4 +1,4 @@
-FlowRouter.route('/_entcore/:service', {
+FlowRouter.route('/_entcore/d/:service', {
 	name: 'entcore.login',
 	action(p, q) {
 	    EntcoreDirect.display('Wait');
@@ -17,7 +17,7 @@ FlowRouter.route('/_entcore/:service', {
 					Tracker.autorun((c) => {
 						if(AccountsEntCore.ready()) {
 							c.stop();
-							var conf = AccountsEntCore.getConfigsArray()['entcore' + p.service];
+							var conf = AccountsEntCore.getConfigs()['entcore' + p.service];
 							if(!conf) {
 							    EntcoreDirect.goErr();
 							} else {
