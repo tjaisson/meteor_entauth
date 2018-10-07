@@ -14,6 +14,14 @@ AccountsEntCore.getConfigsArray = () => {
 	}
 };
 
+AccountsEntCore.getConfigs = () => {
+	if(EntCore.ready()) {
+		return EntCore.configs;
+	} else {
+		return {};
+	}
+};
+
 AccountsEntCore.registerService = function(conf) {
 	let service = conf.service;
 	Accounts.oauth.registerService(service);
