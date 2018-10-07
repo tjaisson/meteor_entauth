@@ -1,18 +1,18 @@
 FlowRouter.route('/_entcore/:service', {
 	name: 'entcore.login',
 	action(p, q) {
-		if(p.service === "wait") {
+		if(EntcoreDirect.layout) {
+		    var op = {};
+		    op[EntcoreDirect.contentRegion] = 'entcoreDirectWait';
+		    BlazeLayout.render(EntcoreDirect.layout, op);
+        }
+		if(p.service === "_wait") {
 			Tracker.autorun((c) => {
 				if(Meteor.user()) {
 					c.stop();
 					EntcoreDirect.goHome();
 				}
 			});
-			if(EntcoreDirect.layout) {
-			    var op = {};
-			    op[EntcoreDirect.contentRegion] = 'entcoreDirectWait';
-    		    BlazeLayout.render(EntcoreDirect.layout, op);
-            }
 		} else {
 			if(!q.code){
 				Meteor.logout(() => {
@@ -25,7 +25,7 @@ FlowRouter.route('/_entcore/:service', {
 							}
 							conf.applyLogin({
 								loginStyle: "redirect",
-								redirectUrl: FlowRouter.url('entcore.login', {service: 'wait'})
+								redirectUrl: FlowRouter.url('entcore.login', {service: '_wait'})
 							});
 						}
 					});
