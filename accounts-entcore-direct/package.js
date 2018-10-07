@@ -9,7 +9,6 @@ Package.onUse(function(api) {
 	  'underscore',
 	  'kadira:flow-router',
 	  'kadira:blaze-layout',
-	  'tjaisson:entcore-oauth',
 	  'tjaisson:accounts-entcore'
   ]);
   api.use([
@@ -18,7 +17,7 @@ Package.onUse(function(api) {
     ], 'client');
 
   api.addFiles('main.js');
-  api.addFiles('wait.html', 'client');
+  api.addFiles('tmpl.html', 'client');
   api.addFiles('client.js', 'client');
   api.export('EntcoreDirect', 'client');
 });
