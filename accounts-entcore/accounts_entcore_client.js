@@ -49,21 +49,15 @@ AccountsEntCore.registerService = function(conf) {
 Tracker.autorun((c) => {
 	if(EntCore.ready()) {
 		c.stop();
-		console.log('accounts-entcore - list services');
 		var services = Accounts.oauth.serviceNames();
 		_.each(EntCore.configsArray, conf => {
 			let service = conf.service;
-			if(_.contains(services, service)) {
-				console.log(' - ' + service);
-			} else {
+			if(!_.contains(services, service)) {
 				AccountsEntCore.registerService(conf);
-				console.log(' + ' + service);
 			}
 		});
-		console.log('accounts-entcore - fin list services');
+		console.log('accounts-entcore Ready');
 		ready = true;
 		dep.changed();
-	} else {
-		console.log('EntCore not ready');
 	}
 });
