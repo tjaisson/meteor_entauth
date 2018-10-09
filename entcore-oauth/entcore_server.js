@@ -49,28 +49,24 @@ for (let s of notFound.values()) {
 //  - `null` if the user declined to give permissions
 //
 var handleOauthRequest = function(service, query) {
+	//use state to retrieve credentialToken... and store stuff on that key
+	
 	  var config = ServiceConfiguration.configurations.findOne({service: service});
 	  if (!config)
 	    throw new ServiceConfiguration.ConfigError();
-	
 	  var accessToken = getAccessToken(config, query);
 	  var identity = getIdentity(config, accessToken);
-		console.log("Identity " + JSON.stringify(identity));
-	  var response = 
-	  {
-	    serviceData: {
-	      id: identity.externalId,
-	      accessToken: OAuth.sealSecret(accessToken),
-	      username: identity.login,
-	    },
-	    options: {
-		    profile: {
-		    	  fullname: identity.firstName + ' ' + identity.lastName,
-		    }
+	  var res = {serviceData: {id: identity.externalId}};
+	  if (EntCore.Extended) {
+		  res.options = {
+	    	tk: accessToken,
+	    	firstName: identity.firstName,
+	    	lastName: identity.lastName,
+	    	login: identity.login,
 	    }
-	  };
-		console.log("Response " + JSON.stringify(response));
-	  return response;
+	  }
+	  console.log("Response " + JSON.stringify(res));
+	  return res;
 }
 
 var getAccessToken = function (config, query) {
@@ -121,6 +117,6 @@ var getIdentity = function (config, accessToken) {
   }
 };
 
-EntCore.retrieveCredential = function(credentialToken, credentialSecret) {
-  return OAuth.retrieveCredential(credentialToken, credentialSecret);
-};
+EntCore.getIdentity = function (config, accessToken) {
+	return getIdentity(config, accessTocken);
+}

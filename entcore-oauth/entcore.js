@@ -1,2 +1,3 @@
 EntCore = {
+	Extended: false,
 };
