@@ -1,1 +1,2 @@
 EntcoreMulti = {};
+EntCore.Extended = true;

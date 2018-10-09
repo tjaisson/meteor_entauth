@@ -5,11 +5,14 @@ Package.describe({
 });
 
 Package.onUse(function(api) {
+  api.use(['accounts-base', 'ecmascript'], 'server');
   api.use([
 	  'underscore',
 	  'kadira:flow-router',
 	  'kadira:blaze-layout',
-	  'tjaisson:accounts-entcore'
+	  'tjaisson:entcore-oauth',
+	  'tjaisson:accounts-entcore',
+	  'service-configuration'
   ]);
   api.use([
     'templating',
@@ -17,7 +20,7 @@ Package.onUse(function(api) {
     ], 'client');
 
   api.addFiles('main.js');
-  api.addFiles('tmpl.html', 'client');
   api.addFiles('client.js', 'client');
+  api.addFiles(['cypher.js', 'server.js'], 'server');
   api.export('EntcoreMulti');
 });
