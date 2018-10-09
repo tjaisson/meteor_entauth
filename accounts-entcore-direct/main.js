@@ -3,11 +3,18 @@ FlowRouter.route('/_entcore/d/:service', {
 	action(p, q) {
 	    EntcoreDirect.display('Wait');
 		if(p.service === "_wait") {
-			Tracker.autorun((c) => {
-				if(Meteor.user()) {
-					c.stop();
+			Accounts.onPageLoadLogin((info) => {
+				if(info.allowed) {
 					EntcoreDirect.goHome();
-				}
+				} else {
+					const err = info.error;
+	                if (err && err instanceof Accounts.LoginCancelledError) {
+	                	EntcoreDirect.goErr();
+	                }
+	                else if (err && (err instanceof Error) && (err.error === "Entcore.Multi.NoAccount")) {
+	                    console.log(err);
+	                }
+                }
 			});
 		} else if(p.service === "_err") {
 		    EntcoreDirect.display('Err');
@@ -22,9 +29,9 @@ FlowRouter.route('/_entcore/d/:service', {
 							    EntcoreDirect.goErr();
 							} else {
     							conf.applyLogin({
-    								loginStyle: "redirect",
-    								redirectUrl: FlowRouter.url('entcore.login', {service: '_wait'})
-    							});
+	    								loginStyle: "redirect",
+	    								redirectUrl: FlowRouter.url('entcore.login', {service: '_wait'})
+	    							});
 						  }
 						}
 					});
