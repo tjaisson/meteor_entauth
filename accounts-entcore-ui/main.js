@@ -5,6 +5,6 @@ EntcoreUi = {
 EntcoreUi.router.route('/err', {
 	name: 'entcore.err',
 	action() {
-	    EntcoreUi.display('Err');
+		BlazeLayout.render("entcoreErr");
 	}
 });

@@ -14,10 +14,11 @@ EntcoreUi.router.go = function() {
 EntcoreUi.router.url = function() {
 	return FlowRouter.url.apply(FlowRouter, arguments);
 }
-EntcoreUi.display = function(p) {
-	if(this.layout) {
-        var op = {};
-	    op[this.contentRegion] = 'entcore' + p;
-	    BlazeLayout.render(this.layout, op);
-    }
+EntcoreUi.display = function(t, p) {
+	//if(this.layout) {
+    //    var op = {};
+	//    op[this.contentRegion] = 'entcore' + p;
+	//    BlazeLayout.render(this.layout, op);
+    //}
+	BlazeLayout.render('entcore' + t, p);
 };

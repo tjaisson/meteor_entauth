@@ -1,14 +1,9 @@
 <template name="entcoreNewAccount">
-<div class="at-form">
-<div class="at-title">
-  <h3>
-    Pas encore de compte ENT
-  </h3>
-  </div>
-  
+{{> entcoreLayoutSmall title="Pas encore de compte ENT" content="entcoreNewAccountButt"}}
+</template>
+
+<template name="entcoreNewAccountButt">
   <button class="at-social-btn" id="at-{{name}}" name="{{name}}">
     Créer compte
   </button>
-  
-  </div>
 </template>

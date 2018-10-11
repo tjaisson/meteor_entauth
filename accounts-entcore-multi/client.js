@@ -22,7 +22,7 @@ EntcoreMulti.handleNewAccount = function(d) {
 	EntcoreUi.router.go('entcore.multi.new');
 }
 
-Template.entcoreNewAccount.events({
+Template.entcoreNewAccountButt.events({
     "click button": function(event, t) {
         event.preventDefault();
         event.currentTarget.blur();

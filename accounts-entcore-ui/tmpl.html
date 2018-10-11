@@ -1,9 +1,35 @@
+<template name="entcoreLayoutSmall">
+<section class="auth-layout">
+<h1 class="at-form-landing-logo"><img src="/wekan-logo.png" alt="Wekan"></h1>
+<section class="auth-dialog">
+<div class="at-form">
+{{#if title}}
+<div class="at-title"><h3>{{title}}</h3></div>
+{{/if}}
+{{> UI.dynamic template=content}}
+</div>
+</section>
+</section>
+</template>
+
 <template name="entcoreErr">
-<div class="at-form"><div class="at-title">
-  <h3>
-    Une erreur s'est produite...
-  </h3>
-</div>
+{{> entcoreLayoutSmall title="Une erreur s'est produite..." content="entcoreBack"}}
+</template>
+
+<template name="entcoreBack">
 <a href="/">Retour</a>
-</div>
+</template>
+
+<template name="entcoreWait">
+{{> entcoreLayoutSmall title="Veuillez patienter..." content="entcoreSpinn"}}
+</template>
+
+<template name="entcoreSpinn">
+     <div class="sk-spinner sk-spinner-wave">
+      <div class="sk-rect1"></div>
+      <div class="sk-rect2"></div>
+      <div class="sk-rect3"></div>
+      <div class="sk-rect4"></div>
+      <div class="sk-rect5"></div>
+    </div>
 </template>
