@@ -1,43 +1,44 @@
-FlowRouter.route('/_entcore/d/:service', {
-	name: 'entcore.login',
+EntcoreUi.router.route('/login/:service/wait', {
+	name: 'entcore.login.wait',
 	action(p, q) {
-	    EntcoreDirect.display('Wait');
-		if(p.service === "_wait") {
-			Accounts.onPageLoadLogin((info) => {
-				if(info.allowed) {
-					EntcoreDirect.goHome();
-				} else {
-					const err = info.error;
-	                if (err && err instanceof Accounts.LoginCancelledError) {
-	                	EntcoreDirect.goErr();
-	                }
-	                else if (err && (err instanceof Error) && (err.error === "Entcore.Multi.NoAccount")) {
-	                    console.log(err);
-	                }
+	    EntcoreUi.display('Wait');
+		Accounts.onPageLoadLogin((info) => {
+			if(info.allowed) {
+				EntcoreUi.router.goHome();
+			} else {
+				const err = info.error;
+                if (err && err instanceof Accounts.LoginCancelledError) {
+                	EntcoreUi.router.goErr();
                 }
-			});
-		} else if(p.service === "_err") {
-		    EntcoreDirect.display('Err');
-		} else {
-			if(!q.code){
-				Meteor.logout(() => {
-					Tracker.autorun((c) => {
-						if(AccountsEntCore.ready()) {
-							c.stop();
-							var conf = AccountsEntCore.getConfigs()['entcore' + p.service];
-							if(!conf) {
-							    EntcoreDirect.goErr();
-							} else {
-    							conf.applyLogin({
-	    								loginStyle: "redirect",
-	    								redirectUrl: FlowRouter.url('entcore.login', {service: '_wait'})
-	    							});
-						  }
-						}
-					});
-				});
-			}
-		}
+                else if (err && (err instanceof Error) && (err.error === "Entcore.Multi.NoAccount")) {
+                    EntcoreMulti.handleNewAccount(err.details);
+                }
+            }
+		});
 	}
 });
 
+EntcoreUi.router.route('/login/:service', {
+	name: 'entcore.login',
+	action(p, q) {
+	    EntcoreUi.display('Wait');
+		if(!q.code) {
+			Meteor.logout(() => {
+				Tracker.autorun((c) => {
+					if(AccountsEntCore.ready()) {
+						c.stop();
+						var conf = AccountsEntCore.getConfigs()['entcore' + p.service];
+						if(!conf) {
+						    EntcoreUi.router.goErr();
+						} else {
+							conf.applyLogin({
+    								loginStyle: "redirect",
+    								redirectUrl: EntcoreUi.router.url('entcore.login.wait', {service: p.service})
+    							});
+						}
+					}
+				});
+			});
+		}
+	}
+});

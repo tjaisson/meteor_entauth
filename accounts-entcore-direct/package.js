@@ -9,7 +9,8 @@ Package.onUse(function(api) {
 	  'underscore',
 	  'kadira:flow-router',
 	  'kadira:blaze-layout',
-	  'tjaisson:accounts-entcore'
+	  'tjaisson:accounts-entcore',
+	  'tjaisson:accounts-entcore-ui'
   ]);
   api.use([
     'templating',

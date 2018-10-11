@@ -117,6 +117,6 @@ var getIdentity = function (config, accessToken) {
   }
 };
 
-EntCore.getIdentity = function (config, accessToken) {
-	return getIdentity(config, accessTocken);
+EntCore.getIdentity = function (conf, tk) {
+	return getIdentity(conf, tk);
 }

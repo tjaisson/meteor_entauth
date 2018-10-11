@@ -12,6 +12,7 @@ Package.onUse(function(api) {
 	  'kadira:blaze-layout',
 	  'tjaisson:entcore-oauth',
 	  'tjaisson:accounts-entcore',
+	  'tjaisson:accounts-entcore-ui',
 	  'service-configuration'
   ]);
   api.use([
@@ -20,7 +21,7 @@ Package.onUse(function(api) {
     ], 'client');
 
   api.addFiles('main.js');
-  api.addFiles('client.js', 'client');
+  api.addFiles(['tmpl.html', 'client.js'], 'client');
   api.addFiles(['cypher.js', 'server.js'], 'server');
   api.export('EntcoreMulti');
 });
