@@ -34,8 +34,6 @@ Template.entcoreNewAccount.events({
         		else {
         			EntcoreUi.router.goHome();
         		}
-        		console.log('new account done');
-        		console.log(arguments);
         	});
         } else {
         	EntcoreUi.router.goErr();
