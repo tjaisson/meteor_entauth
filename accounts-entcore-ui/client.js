@@ -11,14 +11,18 @@ EntcoreUi.router.goErr = function() {
 EntcoreUi.router.go = function() {
 	FlowRouter.go.apply(FlowRouter, arguments);
 }
+EntcoreUi.router.goWRS = function() {
+	FlowRouter.withReplaceState(() => {
+		FlowRouter.go.apply(FlowRouter, arguments);
+	});
+}
 EntcoreUi.router.url = function() {
 	return FlowRouter.url.apply(FlowRouter, arguments);
 }
-EntcoreUi.display = function(t, p) {
-	//if(this.layout) {
-    //    var op = {};
-	//    op[this.contentRegion] = 'entcore' + p;
-	//    BlazeLayout.render(this.layout, op);
-    //}
-	BlazeLayout.render('entcore' + t, p);
+EntcoreUi.display = function(l, t, p) {
+	const o = {
+			templ: 'entcore' + t,
+			...p
+	}
+	BlazeLayout.render('entcoreLayout' + l, o);
 };

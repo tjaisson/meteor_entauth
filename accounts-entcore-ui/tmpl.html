@@ -1,6 +1,11 @@
 <template name="entcoreLayoutSmall">
 <section class="auth-layout">
 <h1 class="at-form-landing-logo"><img src="/wekan-logo.png" alt="Wekan"></h1>
+{{> UI.dynamic template=templ}}
+</section>
+</template>
+
+<template name="entcoreBox">
 <section class="auth-dialog">
 <div class="at-form">
 {{#if title}}
@@ -9,11 +14,10 @@
 {{> UI.dynamic template=content}}
 </div>
 </section>
-</section>
 </template>
 
 <template name="entcoreErr">
-{{> entcoreLayoutSmall title="Une erreur s'est produite..." content="entcoreBack"}}
+{{> entcoreBox title="Une erreur s'est produite..." content="entcoreBack"}}
 </template>
 
 <template name="entcoreBack">
@@ -21,7 +25,7 @@
 </template>
 
 <template name="entcoreWait">
-{{> entcoreLayoutSmall title="Veuillez patienter..." content="entcoreSpinn"}}
+{{> entcoreBox title="Veuillez patienter..." content="entcoreSpinn"}}
 </template>
 
 <template name="entcoreSpinn">
