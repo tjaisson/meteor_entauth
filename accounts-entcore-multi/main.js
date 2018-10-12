@@ -4,6 +4,6 @@ EntCore.Extended = true;
 EntcoreUi.router.route('/newaccount', {
 	name: 'entcore.multi.new',
 	action(p, q) {
-	    EntcoreUi.display('NewAccount');
+	    EntcoreUi.display('Small', 'M');
 	}
 });

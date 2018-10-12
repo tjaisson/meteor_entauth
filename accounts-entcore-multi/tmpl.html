@@ -1,9 +1,52 @@
-<template name="entcoreNewAccount">
-{{> entcoreLayoutSmall title="Pas encore de compte ENT" content="entcoreNewAccountButt"}}
+<template name="entcoreM">
+{{#if expired}}
+{{> entcoreBox title="La connexion avec l'ENT a expiré" content="entcoreBack"}}
+{{else}}
+{{> entcoreBox title="Vous êtes identifié dans l'ENT" content="entcoreMEntIdent"}}
+{{> UI.dynamic template=tmpl}}
+{{/if}}
 </template>
 
-<template name="entcoreNewAccountButt">
-  <button class="at-social-btn" id="at-{{name}}" name="{{name}}">
-    Créer compte
+<template name="entcoreMEntIdent">
+<b>ENT&nbsp;:</b> {{serviceName}}<br />
+<b>Login&nbsp;:</b> {{ident.login}}<br />
+<b>Prénom&nbsp;:</b> {{ident.firstName}}<br />
+<b>Nom&nbsp;:</b> {{ident.lastName}}
+</template>
+
+<template name="entcoreMNewOrMerge">
+{{> entcoreBox title="Votre compte ENT n'est associé à aucun compte Wekan" content="entcoreMNewOrMergeCnt"}}
+</template>
+
+<template name="entcoreMNewOrMergeCnt">
+<p>Vous pouvez créer un nouveau compte Wekan associé à votre compte ENT</p>
+  <button class="at-social-btn" id="entcoreMNewButt">
+    Créer un nouveau compte
+  </button>
+<p><br />Si vous disposez déjà d'un compte Wekan, vous pouvez l'associer à votre compte ENT</p>
+  <button class="at-social-btn" id="entcoreMMergeButt">
+    Associer un compte existant
   </button>
 </template>
+
+<template name="entcoreMNewButt">
+</template>
+
+<template name="entcoreMMergeButt">
+</template>
+
+<template name="entcoreMLoginForMerge">
+{{> entcoreBox title="Connexion à votre compte Wekan existant" content="entcoreMLoginForMergeCnt"}}
+</template>
+
+<template name="entcoreMLoginForMergeCnt">
+  <div class="at-pwd-form">
+    <form role="form" id="at-pwd-form" novalidate action="#" method="POST">
+      {{#each fields}}
+        {{> atInput}}
+      {{/each}}
+      {{> atPwdFormBtn}}
+    </form>
+  </div>
+</template>
+
