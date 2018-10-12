@@ -1,7 +1,7 @@
 EntcoreUi.router.route('/login/:service/wait', {
 	name: 'entcore.login.wait',
 	action(p, q) {
-	    EntcoreUi.display('Wait');
+	    EntcoreUi.display('Small', 'Wait');
 		Accounts.onPageLoadLogin((info) => {
 			if(info.allowed) {
 				EntcoreUi.router.goHome();
@@ -21,7 +21,7 @@ EntcoreUi.router.route('/login/:service/wait', {
 EntcoreUi.router.route('/login/:service', {
 	name: 'entcore.login',
 	action(p, q) {
-	    EntcoreUi.display('Wait');
+		EntcoreUi.display('Small', 'Wait');
 		if(!q.code) {
 			Meteor.logout(() => {
 				Tracker.autorun((c) => {
