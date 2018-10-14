@@ -11,25 +11,24 @@ updateOrCreateUserFromExternalService = function(serviceName, serviceData, optio
 	//let user = false;
 	if (user) {
 		return origUpdateOrCreateUserFromExternalService.apply(this, arguments);
-	} else {
-		const cId = DDP._CurrentMethodInvocation.get().connection.id;
-		const ret = {
-			stk: EntcoreMulti.keys.seal(cId + '.' + options.tk),
-			lastName: options.lastName,
-			firstName: options.firstName,
-			login: options.login,
-			service: serviceName
-		};
-		
-		return {
-			type: serviceName,
-			error: new Meteor.Error(
-				'Entcore.Multi.NoAccount',
-				'No associated account',
-				ret
-			)
-		};
 	}
+	const cId = DDP._CurrentMethodInvocation.get().connection.id;
+	const ret = {
+		stk: EntcoreMulti.keys.seal(cId + '.' + options.tk),
+		lastName: options.lastName,
+		firstName: options.firstName,
+		login: options.login,
+		service: serviceName
+	};
+
+	return {
+		type: serviceName,
+		error: new Meteor.Error(
+			'Entcore.Multi.NoAccount',
+			'No associated account',
+			ret
+		)
+	};
 }
 
 Accounts.updateOrCreateUserFromExternalService =
@@ -40,10 +39,11 @@ Accounts.updateOrCreateUserFromExternalService =
 //users actually get logged in to meteor via oauth.
 Accounts.registerLoginHandler(options => {
 if (!options.entcore)
- return undefined; // don't handle
+    return undefined; // don't handle
 check(options.entcore, {
 	service: String,
-	stk: String
+	stk: String,
+	act: String,
 });
 const opts = options.entcore;
 const conf = ServiceConfiguration.configurations.findOne({service: opts.service});
@@ -59,20 +59,28 @@ if (cId !== DDP._CurrentMethodInvocation.get().connection.id)
 const ident = EntCore.getIdentity(conf, tk);
 if((!ident) || (!ident.externalId))
 	throw new Meteor.Error('Entcore.Multi.BadResponse', 'Bad response from server');
-		  // Create a new user with the service data.
+
+const newUser = {
+    profile: {fullname: ident.firstName + " " + ident.lastName},
+    services: {[opts.service]: {id: ident.externalId}}
+};
+
 const sel = {};
 sel['services.' + opts.service + '.id'] = ident.externalId;
 let user = Meteor.users.findOne(sel, {fields: {_id: 1}});
-//let user = false;
-if (!user) {
-	user = {
-			profile: {fullname: ident.lastName},
-			services: {[opts.service]: {
-				id: ident.externalId,
-			}}
-	};
-	Accounts.insertUserDoc({}, user);
-}
-return origUpdateOrCreateUserFromExternalService.apply(Accounts, [opts.service, {id: ident.externalId}, {}]);
-}
-);
+const act = opts.act
+if (act === 'new') {
+    // Create a new user with the service data.
+    if (!user) {
+    	Accounts.insertUserDoc({}, newUser);
+    }
+    return origUpdateOrCreateUserFromExternalService.apply(Accounts, [opts.service, {id: ident.externalId}, {}]);
+} else if (act === 'merge') {
+    const userId = DDP._CurrentMethodInvocation.get().userId;
+    if (!userId)
+	   throw new Meteor.Error('Entcore.Multi.NoUserToMerge', 'No user to merge with');
+    if (user)
+	   throw new Meteor.Error('Entcore.Multi.MergedWithAnother', 'Aready merged account');
+    Meteor.users.update({_id: userId}, {$set: newUser});
+	   throw new Meteor.Error('Entcore.Multi.MergedOk', 'Accounts merged');
+}});

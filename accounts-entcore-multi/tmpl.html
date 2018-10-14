@@ -16,6 +16,10 @@
 {{> entcoreBox title="Votre compte ENT n'est associé à aucun compte Wekan" content="entcoreMNewOrMergeCnt"}}
 </template>
 
+<template name="entcoreMWaitForNewAccount">
+{{> entcoreWait}}
+</template>
+
 <template name="entcoreMNewOrMergeCnt">
 <p>Vous pouvez créer un nouveau compte Wekan associé à votre compte ENT</p>
   <button class="at-social-btn" id="entcoreMNewButt">
@@ -33,15 +37,18 @@
 
 <template name="entcoreMLoginForMergeCnt">
   <div class="at-pwd-form">
-    <form role="form" id="at-pwd-form" novalidate action="#" method="POST">
+    <form role="form" id="entcore-lfm-form" novalidate action="#" method="POST">
       {{#each fields}}
         {{> atInput}}
       {{/each}}
       {{!-- > atPwdFormBtn --}}
-  <button class="at-social-btn" id="entcoreMLoginFoMergeButt">
+  <button class="at-social-btn" id="entcore-lfm-butt">
     Se connecter
   </button>
     </form>
   </div>
 </template>
 
+<template name="entcoreMWaitForLoginForMerge">
+{{> entcoreWait}}
+</template>

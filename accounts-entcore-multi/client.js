@@ -41,11 +41,12 @@ function _setTemplState(s) {
 	_templDep.changed();
 }
 
-function _createNewAccountAndLogin(service, stk, cb)  {
+function _callEntcoreLogin(service, stk, act, cb)  {
 	const options = {
 		entcore: {
 			service: service,
-			stk: stk
+			stk: stk,
+			act: act
 		}	
 	};
 	Accounts.callLoginMethod({
@@ -56,11 +57,11 @@ function _createNewAccountAndLogin(service, stk, cb)  {
 
 EntcoreMulti.getData = () => _d;
 
-EntcoreMulti.createNewAccount = function()  {
+EntcoreMulti.callEntcoreLogin = function(act)  {
 	if(!_expired()) {
-		_createNewAccountAndLogin(_d.service, _d.stk, (e) => {
+		_callEntcoreLogin(_d.service, _d.stk, act, (e) => {
 			_setData(undefined);
-    		if(e) {
+    		if(e && e.error != 'Entcore.Multi.MergedOk') {
     			EntcoreUi.router.goErr();
     		} else {
     			EntcoreUi.router.goHome();
@@ -98,11 +99,14 @@ Template.entcoreMNewOrMergeCnt.events({
     "click button#entcoreMNewButt": function(event, t) {
         event.preventDefault();
         event.currentTarget.blur();
-    	EntcoreMulti.createNewAccount();
+        if(_templState !== 'NewOrMerge') return;
+        _setTemplState('WaitForNewAccount');
+    	EntcoreMulti.callEntcoreLogin('new');
     },
     "click button#entcoreMMergeButt": function(event, t) {
         event.preventDefault();
         event.currentTarget.blur();
+        if(_templState !== 'NewOrMerge') return;
         _setTemplState('LoginForMerge');
     }
 });
@@ -111,8 +115,107 @@ Template.entcoreMLoginForMerge.events({
     "click a.back-btn":  function(event, t) {
         event.preventDefault();
         event.currentTarget.blur();
+        if(_templState !== 'LoginForMerge') return;
         _setTemplState('NewOrMerge');
     }
 });
 
 Template.entcoreMLoginForMergeCnt.helpers(AccountsTemplates.atPwdFormHelpers);
+
+Template.entcoreMLoginForMergeCnt.events({
+    // Form submit
+"submit #entcore-lfm-form": function(event, t) {
+    event.preventDefault();
+    t.$("#entcore-lfm-butt").blur();
+    if(_templState !== 'LoginForMerge') return;
+    
+    var parentData = Template.currentData();
+
+    // Client-side pre-validation
+    // Validates fields values
+    // NOTE: This is the only place where password validation can be enforced!
+    var formData = {};
+    var someError = false;
+    var errList = [];
+    _.each(AccountsTemplates.getFields(), function(field){
+        // Considers only visible fields...
+        if (!_.contains(field.visible, 'signIn'))
+            return;
+
+        var fieldId = field._id;
+
+        var rawValue = field.getValue(t);
+        var value = field.fixValue(rawValue);
+        // Possibly updates the input value
+        if (value !== rawValue) {
+            field.setValue(t, value);
+        }
+        if (value !== undefined && value !== "") {
+            formData[fieldId] = value;
+        }
+    });
+
+    // Clears error and result
+
+    // Extracts username, email, and pwds
+    var current_password = formData.current_password;
+    var email = formData.email;
+    var password = formData.password;
+    var username = formData.username;
+    var username_and_email = formData.username_and_email;
+    // Clears profile data removing username, email, and pwd
+    delete formData.current_password;
+    delete formData.email;
+    delete formData.password;
+    delete formData.username;
+    delete formData.username_and_email;
+
+    // -------
+    // Sign In
+    // -------
+    var pwdOk = !!password;
+    var userOk = true;
+    var loginSelector;
+    if (email) {
+        if (AccountsTemplates.options.lowercaseUsername) {
+          email = toLowercaseUsername(email);
+        }
+
+        loginSelector = {email: email};
+    }
+    else if (username) {
+        if (AccountsTemplates.options.lowercaseUsername) {
+          username = toLowercaseUsername(username);
+        }
+        loginSelector = {username: username};
+    }
+    else if (username_and_email) {
+        if (AccountsTemplates.options.lowercaseUsername) {
+          username_and_email = toLowercaseUsername(username_and_email);
+        }
+        loginSelector = username_and_email;
+    }
+    else
+        userOk = false;
+
+    // Possibly exits if not both 'password' and 'username' are non-empty...
+    if (!pwdOk || !userOk){
+        
+        return;
+    }
+
+    _setTemplState('WaitForLoginForMerge');
+
+    return Meteor.loginWithPassword(loginSelector, password, function(e) {
+        if (e) {
+            if (_.isObject(e.details)) {
+                _.each(e.details, function(error, fieldId) {
+                    AccountsTemplates.getField(fieldId).setError(error);
+                });
+            }
+            _setTemplState('LoginForMerge');
+        } else {
+            EntcoreMulti.callEntcoreLogin('merge');
+        }
+    });
+}});
