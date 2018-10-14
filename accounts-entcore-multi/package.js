@@ -8,6 +8,7 @@ Package.onUse(function(api) {
   api.use(['accounts-base', 'ecmascript'], 'server');
   api.use([
 	  'underscore',
+	  'useraccounts:core',
 	  'kadira:flow-router',
 	  'kadira:blaze-layout',
 	  'tjaisson:entcore-oauth',

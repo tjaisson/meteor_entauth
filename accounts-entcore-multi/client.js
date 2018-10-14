@@ -105,3 +105,13 @@ Template.entcoreMNewOrMergeCnt.events({
         _setTemplState('LoginForMerge');
     }
 });
+
+Template.entcoreMLoginForMerge.events({
+    "click a.back-btn":  function(event, t) {
+        event.preventDefault();
+        event.currentTarget.blur();
+        _setTemplState('NewOrMerge');
+    }
+});
+
+Template.entcoreMLoginForMergeCnt.helpers(AccountsTemplates.atPwdFormHelpers);

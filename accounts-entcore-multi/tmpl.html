@@ -9,9 +9,7 @@
 
 <template name="entcoreMEntIdent">
 <b>ENT&nbsp;:</b> {{serviceName}}<br />
-<b>Login&nbsp;:</b> {{ident.login}}<br />
-<b>Prénom&nbsp;:</b> {{ident.firstName}}<br />
-<b>Nom&nbsp;:</b> {{ident.lastName}}
+<b>Compte&nbsp;:</b> {{ident.firstName}} {{ident.lastName}} ({{ident.login}})<br />
 </template>
 
 <template name="entcoreMNewOrMerge">
@@ -30,7 +28,7 @@
 </template>
 
 <template name="entcoreMLoginForMerge">
-{{> entcoreBox title="Connexion à votre compte Wekan existant" content="entcoreMLoginForMergeCnt"}}
+{{> entcoreBox title="Connexion à votre compte Wekan existant" back=1 content="entcoreMLoginForMergeCnt" state="signIn"}}
 </template>
 
 <template name="entcoreMLoginForMergeCnt">
@@ -39,7 +37,10 @@
       {{#each fields}}
         {{> atInput}}
       {{/each}}
-      {{> atPwdFormBtn}}
+      {{!-- > atPwdFormBtn --}}
+  <button class="at-social-btn" id="entcoreMLoginFoMergeButt">
+    Se connecter
+  </button>
     </form>
   </div>
 </template>
