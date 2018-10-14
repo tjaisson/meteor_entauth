@@ -5,7 +5,8 @@ var _timer;
 var _templState;
 
 function _expired() {
-	return (!_d) || (_d._expired);
+    const d = _getData();
+	return (!d) || (d._expired);
 }
 
 function _getData() {
@@ -26,7 +27,7 @@ function _setData(d) {
 			_d._expired = true;
 			_dep.changed();
 			_timer = undefined;
-		}, 300000);
+		}, 300000); //5 min
 	}
 }
 
