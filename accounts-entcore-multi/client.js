@@ -4,9 +4,10 @@ const _templDep = new Tracker.Dependency;
 var _timer;
 var _templState;
 
+//reactive
 function _expired() {
-    const d = _getData();
-	return (!d) || (d._expired);
+	_dep.depend();
+	return (!_d) || (_d._expired);
 }
 
 function _getData() {
@@ -42,13 +43,7 @@ function _setTemplState(s) {
 }
 
 function _callEntcoreLogin(service, stk, act, cb)  {
-	const options = {
-		entcore: {
-			service: service,
-			stk: stk,
-			act: act
-		}	
-	};
+	const options = {entcore: {service: service,	stk: stk, act: act}};
 	Accounts.callLoginMethod({
 		methodArguments: [options],
 		userCallback: cb && (err => cb(err)),
@@ -60,12 +55,19 @@ EntcoreMulti.getData = () => _d;
 EntcoreMulti.callEntcoreLogin = function(act)  {
 	if(!_expired()) {
 		_callEntcoreLogin(_d.service, _d.stk, act, (e) => {
+			if (act === 'new') {
+				if (e)
+					EntcoreUi.router.goErr();
+				else
+					EntcoreUi.router.goHome();
+			} else if (act === 'merge') {
+				if(e && e.error != 'Entcore.Multi.MergedOk') {
+					EntcoreUi.router.goErr();
+				} else {
+					EntcoreUi.router.go('entcore.multi.new.merged');
+				}
+			}
 			_setData(undefined);
-    		if(e && e.error != 'Entcore.Multi.MergedOk') {
-    			EntcoreUi.router.goErr();
-    		} else {
-    			EntcoreUi.router.goHome();
-    		}
     	});
 	} else {
 		EntcoreUi.goErr();

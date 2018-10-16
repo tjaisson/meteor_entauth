@@ -26,10 +26,11 @@ EntcoreUi.display = function(l, t, p) {
 	}
 	BlazeLayout.render('entcoreLayout' + l, o);
 };
-Template.entcoreBack.events({
-    "click button": function(event, t) {
-        event.preventDefault();
-        event.currentTarget.blur();
-    	EntcoreUi.router.goHome();
-    }
-});
+const HomeEvent = {
+"click button": function(event, t) {
+    event.preventDefault();
+    event.currentTarget.blur();
+	EntcoreUi.router.goHome();
+}};
+Template.entcoreBack.events(HomeEvent);
+Template.entcoreContinue.events(HomeEvent);
