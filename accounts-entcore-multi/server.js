@@ -136,7 +136,7 @@ if (act === 'new') {
 		};
     	
     	const fn = _buildFullName(ident.options.firstName, ident.options.lastName);
-    	if (fn) newUser.profile = {fullname: fn};
+    	if (fn) newUser.profile = {fullname: fn, language: 'fr'};
     	if (ident.options.uai) newUser.services[opts.service].uai = ident.options.uai; 
     	newUser.services[opts.service].profil = _buildTypeCode(ident.options.type);
 		const cl = ident.options.classId ? _extractCode(ident.options.classId) : false;
