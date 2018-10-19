@@ -9,13 +9,10 @@ const updateOrCreateUserFromExternalService = function(serviceName, serviceData,
 	sel['services.' + serviceName + '.id'] = serviceData.id;
 	let user = Meteor.users.findOne(sel, {fields: {_id: 1}});
 	if (user) {
-		// update
-	    const updt = {
-	    		$set: {'profile.fullname': options.firstName + " " + options.lastName,
-	    			['services.' + serviceName + '.type']: options.type,
-	    			['services.' + serviceName + '.uai']: options.uai}
-	    };
-	    Meteor.users.update({_id: user._id}, updt);
+		const updt = _buildUpdate(serviceName, options);
+		if(updt) {
+		    Meteor.users.update({_id: user._id}, updt);
+		}
 		return origUpdateOrCreateUserFromExternalService.apply(this, [serviceName, serviceData]);
 	}
 	const cId = DDP._CurrentMethodInvocation.get().connection.id;
@@ -40,6 +37,49 @@ const updateOrCreateUserFromExternalService = function(serviceName, serviceData,
 Accounts.updateOrCreateUserFromExternalService =
 	updateOrCreateUserFromExternalService;
 
+
+const _buildUpdate = function(serviceName, options) {
+	// update
+	let hasSet = false;
+	let hasUnset = false;
+	const _set = {};
+	const _unset = {};
+	const fn = _buildFullName(options.firstName, options.lastName);
+	if (fn) {_set['profile.fullname'] = fn; hasSet = true;}
+	if (options.uai) {_set['services.' + serviceName + '.uai'] = options.uai; hasSet = true;}
+	else {_unset['services.' + serviceName + '.uai'] = ''; hasUnset = true;}
+	_set['services.' + serviceName + '.profil'] = _buildTypeCode(options.type); hasSet = true;
+	const cl = options.classId ? _extractCode(options.classId) : false;
+	if (cl) {_set['services.' + serviceName + '.classe'] = cl; hasSet = true;}
+	else {_unset['services.' + serviceName + '.classe'] = ''; hasUnset = true;}
+	
+	if(hasSet || hasUnset) {
+	    const updt = {};
+	    if(hasSet) updt.$set = _set;
+	    if(hasSet) updt.$unset = _unset;
+	    return updt;
+	} else {
+		return undefined;
+	}
+}
+
+const _extractCode = function(c) {
+	return c.split('$')[1];
+}
+
+const _buildTypeCode = function(t) {
+	if (t === 'ENSEIGNANT') return 'prof';
+	if (t === 'ELEVE') return 'eleve';
+	if (t === 'PERSRELELEVE') return 'parent';
+	if (t === 'PERSEDUCNAT') return 'personnel';
+	return 'invite';
+}
+
+const _buildFullName = function(fn, ln) {
+	if (!fn) return ln;
+	if (!ln) return fn;
+	return fn + " " + ln;
+}
 
 const _buildUniqueUsername = function(login) {
 	let u = Meteor.users.findOne({username: login}, {fields: {_id: 1}});
@@ -90,16 +130,18 @@ if (act === 'new') {
     // Create a new user with the service data.
     if (!user) {
     	//choose a username for the user
-    	user = Meteor.users.findOne(sel, {fields: {_id: 1}});
     	const newUser = {
-		username: _buildUniqueUsername(ident.options.login),
-	    profile: {fullname: ident.options.firstName + " " + ident.options.lastName},
-	    services: {[opts.service]: {
-	    	id: ident.serviceData.id,
-	    	type: ident.options.type,
-	    	uai: ident.options.uai,
-	    	}}
+    			username: _buildUniqueUsername(ident.options.login),
+    		    services: {[opts.service]: {id: ident.serviceData.id}}
 		};
+    	
+    	const fn = _buildFullName(ident.options.firstName, ident.options.lastName);
+    	if (fn) newUser.profile = {fullname: fn};
+    	if (ident.options.uai) newUser.services[opts.service].uai = ident.options.uai; 
+    	newUser.services[opts.service].profil = _buildTypeCode(ident.options.type);
+		const cl = ident.options.classId ? _extractCode(ident.options.classId) : false;
+		if (cl) newUser.services[opts.service].classe = cl;
+    	
     	Accounts.insertUserDoc({}, newUser);
     }
     return origUpdateOrCreateUserFromExternalService.apply(Accounts, [opts.service, {id: ident.serviceData.id}, {}]);
@@ -109,13 +151,11 @@ if (act === 'new') {
 	   throw new Meteor.Error('Entcore.Multi.NoUserToMerge', 'No user to merge with');
     if (user)
 	   throw new Meteor.Error('Entcore.Multi.MergedWithAnother', 'Aready merged account');
-    const updt = {
-    		$set: {'profile.fullname': ident.options.firstName + " " + ident.options.lastName,
-    			['services.' + opts.service]: {id: ident.serviceData.id, 
-    				type:ident.options.type,
-    				uai: ident.options.uai}}
-    };
-    Meteor.users.update({_id: userId}, updt);
+    let updt = _buildUpdate(opts.service, ident.options);
+    if (!updt) updt = {};
+    if (!updt.$set) updt.$set = {};
+    updt.$set['services.' + opts.service + '.id'] = ident.serviceData.id; 
+	Meteor.users.update({_id: userId}, updt);
 	return {
 		type: opts.service,
 		error: new Meteor.Error(
