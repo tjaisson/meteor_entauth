@@ -105,7 +105,8 @@ const _getIdentity = function(config, accessToken) {
 	    	lastName: r.lastName,
 	    	login: r.login,
 	    	uai: r.uai,
-	    	type: r.type
+	    	type: r.type,
+	    	classId: r.classId
 	    }
 	  }
 	  return res;
