@@ -1,5 +1,5 @@
 const _registerService = function(s) {
-	let service = 'entcore' + s.server;
+	const service = 'entcore' + s.server;
 	OAuth.registerService(service, 2, null, function(query) {
 		return _handleOauthRequest(service, query);
 		});
@@ -23,9 +23,9 @@ const _configureService = function(s) {
 (() => {
 	const services = new Set();
 	if (Meteor.settings.entcoreOauth) {
-		var len = Meteor.settings.entcoreOauth.length;
+		const len = Meteor.settings.entcoreOauth.length;
 		for (var i = 0; i < len; i++) {
-			var s = Meteor.settings.entcoreOauth[i];; 
+			var s = Meteor.settings.entcoreOauth[i];
 			services.add('entcore' + s.server);
 			_registerService(s);
 			_configureService(s);
@@ -42,8 +42,8 @@ const _configureService = function(s) {
 	}
 })();
 
+//@param service {string} 'entcorepcn' or 'entcoremln'
 //@param query (For OAuth2 only) {Object} parameters passed in query string
-//@param server {string} 'pcn' or 'mln'
 //- return value is:
 //  - {serviceData:, (optional options:)} where serviceData should end
 //    up in the user's services[name] field

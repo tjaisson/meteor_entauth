@@ -1,11 +1,8 @@
 EntCore.configs = {};
 EntCore.configsArray = [];
 
-var dep = new Tracker.Dependency;
+const dep = new Tracker.Dependency;
 var ready = false;
-
-
-//EntCore.getDep = () => dep;
 
 EntCore.ready = () => {
 	dep.depend();
@@ -28,11 +25,11 @@ Tracker.autorun((c) => {
 
 
 // Request Entcore credentials for the user
+// @param service "entcoremln" or "entcorepcn"
 // @param options {optional}
 // @param credentialRequestCompleteCallback {Function} Callback function to call on
 //   completion. Takes one argument, credentialToken on success, or Error on
 //   error.
-// @param service "entcoremln" or "entcorepcn"
 EntCore.requestCredential = function (service, options, credentialRequestCompleteCallback) {
   // support both (options, callback) and (callback).
   if (!credentialRequestCompleteCallback && typeof options === 'function') {
