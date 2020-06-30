@@ -41,7 +41,6 @@ EntcoreMulti.keys = {
 		const c = crypto.createCipheriv('aes128', key.key, iv);
 		var r = c.update(value, 'utf8');
 		r = Buffer.concat([iv, r, c.final()]);
-
 		return key.keyId + r.toString('base64');
 	},
 	open(value) {
@@ -49,8 +48,7 @@ EntcoreMulti.keys = {
 		const key = this.getDecyphKey(keyId);
 		if(!key) return undefined;
 		const r = Buffer.from(value.substring(3), 'base64');
-		const iv = r.slice(0, 16);
-		const c = crypto.createDecipheriv('aes128', key, iv);
+		const c = crypto.createDecipheriv('aes128', key, r.slice(0, 16));
 		var s = c.update(r.slice(16), 0, 'utf8');
 		s += c.final('utf8');
 		return s;
